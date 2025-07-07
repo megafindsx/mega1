@@ -1,35 +1,50 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import qs from "query-string";
+import { useRouter } from "next/navigation";
 import { Category } from "@prisma/client";
 import { useCallback } from "react";
 
 interface CategoriesProps {
-  categories?: Category[];
+  categories: Category[] | null | undefined;
 }
 
-export const Categories = ({ categories = [] }: CategoriesProps) => {
+export const Categories = ({ categories }: CategoriesProps) => {
   const params = useSearchParams();
   const router = useRouter();
 
   const categoryId = params?.get("categoryId");
 
-  const handleClick = useCallback((id: string) => {
-    const current = qs.parse(params?.toString() ?? "");
-    const query = {
-      ...current,
-      categoryId: id,
-    };
+  const handleClick = useCallback(
+    (id: string) => {
+      const current = qs.parse(params?.toString() ?? "");
+      const query = {
+        ...current,
+        categoryId: id,
+      };
 
-    if (current.categoryId === id) {
-      delete query.categoryId;
-    }
+      if (current.categoryId === id) {
+        delete query.categoryId;
+      }
 
-    const url = qs.stringifyUrl({ url: "/", query }, { skipNull: true });
+      const url = qs.stringifyUrl(
+        {
+          url: "/",
+          query,
+        },
+        { skipNull: true }
+      );
 
-    router.push(url);
-  }, [params, router]);
+      router.push(url);
+    },
+    [params, router]
+  );
+
+  // Safeguard rendering until categories is a valid array
+  if (!Array.isArray(categories)) {
+    return null; // or a loader
+  }
 
   if (categories.length === 0) {
     return <div>No categories found.</div>;
@@ -42,7 +57,11 @@ export const Categories = ({ categories = [] }: CategoriesProps) => {
           key={category.id}
           onClick={() => handleClick(category.id)}
           className={`text-sm px-3 py-2 border rounded-full cursor-pointer hover:border-black transition 
-            ${categoryId === category.id ? "border-black bg-neutral-100" : "border-neutral-200"}`}
+            ${
+              categoryId === category.id
+                ? "border-black bg-neutral-100"
+                : "border-neutral-200"
+            }`}
         >
           {category.name}
         </div>
