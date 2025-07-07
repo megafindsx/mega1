@@ -1,16 +1,15 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import qs from "query-string";
-import { useRouter } from "next/navigation";
 import { Category } from "@prisma/client";
 import { useCallback } from "react";
 
 interface CategoriesProps {
-  categories: Category[] | null;
+  categories?: Category[];
 }
 
-export const Categories = ({ categories }: CategoriesProps) => {
+export const Categories = ({ categories = [] }: CategoriesProps) => {
   const params = useSearchParams();
   const router = useRouter();
 
@@ -27,19 +26,12 @@ export const Categories = ({ categories }: CategoriesProps) => {
       delete query.categoryId;
     }
 
-    const url = qs.stringifyUrl(
-      {
-        url: "/",
-        query,
-      },
-      { skipNull: true }
-    );
+    const url = qs.stringifyUrl({ url: "/", query }, { skipNull: true });
 
     router.push(url);
   }, [params, router]);
 
-  // Ensure categories is not null before rendering
-  if (!categories || categories.length === 0) {
+  if (categories.length === 0) {
     return <div>No categories found.</div>;
   }
 
