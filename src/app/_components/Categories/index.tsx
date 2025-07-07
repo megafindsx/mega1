@@ -1,30 +1,60 @@
-import React from 'react'
-import Link from 'next/link'
+"use client";
 
-import { Category } from '../../../payload/payload-types'
-import CategoryCard from './CategoryCard'
+import { useSearchParams } from "next/navigation";
+import qs from "query-string";
+import { useRouter } from "next/navigation";
+import { Category } from "@prisma/client";
+import { useCallback } from "react";
 
-import classes from './index.module.scss'
-
-const Categories = ({ categories }: { categories: Category[] }) => {
-  return (
-    <section className={classes.container}>
-      <div className={classes.titleWrapper}>
-        <h3>Shop by Categories</h3>
-        <Link href="/products">Show All</Link>
-      </div>
-
-      <div className={classes.list}>
-        {Array.isArray(categories) && categories.length > 0 ? (
-          categories.map(category => (
-            <CategoryCard key={category.id} category={category} />
-          ))
-        ) : (
-          <p>No categories found.</p>
-        )}
-      </div>
-    </section>
-  )
+interface CategoriesProps {
+  categories: Category[] | null;
 }
 
-export default Categories
+export const Categories = ({ categories }: CategoriesProps) => {
+  const params = useSearchParams();
+  const router = useRouter();
+
+  const categoryId = params?.get("categoryId");
+
+  const handleClick = useCallback((id: string) => {
+    const current = qs.parse(params?.toString() ?? "");
+    const query = {
+      ...current,
+      categoryId: id,
+    };
+
+    if (current.categoryId === id) {
+      delete query.categoryId;
+    }
+
+    const url = qs.stringifyUrl(
+      {
+        url: "/",
+        query,
+      },
+      { skipNull: true }
+    );
+
+    router.push(url);
+  }, [params, router]);
+
+  // Ensure categories is not null before rendering
+  if (!categories || categories.length === 0) {
+    return <div>No categories found.</div>;
+  }
+
+  return (
+    <div className="flex items-center gap-x-2 overflow-x-auto pb-2">
+      {categories.map((category) => (
+        <div
+          key={category.id}
+          onClick={() => handleClick(category.id)}
+          className={`text-sm px-3 py-2 border rounded-full cursor-pointer hover:border-black transition 
+            ${categoryId === category.id ? "border-black bg-neutral-100" : "border-neutral-200"}`}
+        >
+          {category.name}
+        </div>
+      ))}
+    </div>
+  );
+};
