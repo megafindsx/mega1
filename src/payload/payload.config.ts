@@ -6,7 +6,7 @@ import nestedDocs from '@payloadcms/plugin-nested-docs'
 import redirects from '@payloadcms/plugin-redirects'
 import seo from '@payloadcms/plugin-seo'
 import type { GenerateTitle } from '@payloadcms/plugin-seo/types'
-import stripePlugin from '@payloadcms/plugin-stripe'
+//import stripePlugin from '@payloadcms/plugin-stripe'
 import { slateEditor } from '@payloadcms/richtext-slate' // editor-import
 import dotenv from 'dotenv'
 import path from 'path'
@@ -36,9 +36,9 @@ const generateTitle: GenerateTitle = () => {
 
 const mockModulePath = path.resolve(__dirname, './emptyModuleMock.js')
 
-dotenv.config({
-  path: path.resolve(__dirname, '../../.env'),
-})
+dotenv.config(//{
+ // path: path.resolve(__dirname, '../../.env'),}
+)
 
 export default buildConfig({
   admin: {
@@ -122,7 +122,7 @@ export default buildConfig({
   ],
   plugins: [
     // formBuilder({}),
-    stripePlugin({
+    /*stripePlugin({
       stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
       isTestKey: Boolean(process.env.PAYLOAD_PUBLIC_STRIPE_IS_TEST_KEY),
       stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET,
@@ -132,7 +132,7 @@ export default buildConfig({
         'product.updated': productUpdated,
         'price.updated': priceUpdated,
       },
-    }),
+    }),*/
     redirects({
       collections: ['pages', 'products'],
     }),
